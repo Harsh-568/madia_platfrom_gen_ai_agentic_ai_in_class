@@ -2,6 +2,7 @@ import streamlit as st
 from db_c import conn_obj,cursor_obj
 import cloudinary
 import cloudinary.uploader
+import mysql.connector
 st.title("Media Platform")
 
 cloudinary.config(
@@ -71,11 +72,28 @@ def signup_function():
 
         btn = st.form_submit_button("SignUp")
         if btn:
-            query="insert into users3(name,email,password) values(%s,%s,%s)"
-            values=(name,email,password)
-            cursor_obj.execute(query,values)
-            conn_obj.commit()
-            st.write("user added successfully ")
+            # basic validation
+            if not name or not email or not password:
+                st.error("All fields are required")
+            else:
+                query = "insert into users3(name,email,password) values(%s,%s,%s)"
+                values = (name, email, password)
+                try:
+                    cursor_obj.execute(query, values)
+                    conn_obj.commit()
+                    st.success("User added successfully")
+                except mysql.connector.Error as err:
+                    import traceback
+                    tb = traceback.format_exc()
+                    # persist full traceback to a local log for debugging
+                    try:
+                        with open("db_error.log", "a", encoding="utf-8") as f:
+                            f.write(tb + "\n")
+                    except Exception:
+                        pass
+                    # show a safe message and the connector error object (may be redacted on Streamlit Cloud)
+                    st.error("A database error occurred. Full details written to db_error.log")
+                    st.write(err)
 
 
 if st.session_state.user == None:
