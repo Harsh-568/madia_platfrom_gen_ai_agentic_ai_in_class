@@ -33,12 +33,10 @@ CREATE TABLE IF NOT EXISTS files3(
     file_type VARCHAR(100),
     file_url TEXT,
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
     FOREIGN KEY(user_id) REFERENCES users3(id)
 )
 """)
 
-conn.commit()
 conn_obj.commit()
 
 print("Tables Created Successfully")
